@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employer extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasActivityLog;
+
     protected $fillable = [
         'name',
         'logo',
@@ -21,8 +23,21 @@ class Employer extends Model
         'country',
     ];
 
-    public function hmrc()
+    /**
+     * @return array<int, string> value => label for Filament selects
+     */
+    public static function payrollStartYearSelectOptions(): array
     {
-        return $this->hasOne(EmployerHrmc::class);
+        $currentYear = now()->year;
+        return collect(range($currentYear, 2017))->mapWithKeys(function ($year) {
+                return [
+                    $year => $year . '/' . substr($year + 1, -2),
+                ];
+            })->toArray();
+    }
+
+    public function getCountryNameAttribute()
+    {
+        return config('general.COUNTRIES')[$this->country] ?? $this->country;
     }
 }

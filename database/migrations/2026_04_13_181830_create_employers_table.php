@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('logo')->nullable();
-            $table->year('payroll_start_year');
+            $table->year('payroll_start_year')->nullable();
             $table->string('company_number', 50)->nullable();
 
             $table->string('address_line_1')->nullable();
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('address_line_3')->nullable();
             $table->string('address_line_4')->nullable();
             $table->string('postcode', 20)->nullable();
-            $table->string('country', 100)->default('England');
+            $table->string('country', 100)->nullable();
 
             $table->timestamps();
             $table->softDeletes();
