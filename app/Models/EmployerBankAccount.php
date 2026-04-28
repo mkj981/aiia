@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EmployerBankAccount extends Model
 {
+    use HasActivityLog;
+
     protected $fillable = [
         'employer_id',
 
@@ -33,8 +37,10 @@ class EmployerBankAccount extends Model
         'include_pensions',
     ];
 
-
     protected $casts = [
+        'account_number' => 'encrypted',
+        'iban' => 'encrypted',
+
         'reject_invalid_employee_bank_details' => 'boolean',
         'include_attachment_of_earnings' => 'boolean',
         'include_deductions' => 'boolean',
@@ -42,4 +48,14 @@ class EmployerBankAccount extends Model
         'include_pensions' => 'boolean',
 
     ];
+
+    public function bankPaymentCsvFormat(): BelongsTo
+    {
+        return $this->belongsTo(BankCsvFormat::class, 'bank_payment_csv_format_id');
+    }
+
+    public function employer(): BelongsTo
+    {
+        return $this->belongsTo(Employer::class);
+    }
 }

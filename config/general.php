@@ -17,4 +17,17 @@ return [
         'image/webp',
     ],
 
+    'countries_of_bank' => [
+        'US' => 'United States',
+        'GB' => 'United Kingdom',
+        'CA' => 'Canada',
+        'DE' => 'Germany',
+        'FR' => 'France',
+        'JO' => 'Jordan',
+        'JP' => 'Japan',
+        'AU' => 'Australia',
+        'IN' => 'India',
+        'BR' => 'Brazil',
+    ],
+
 ];

@@ -20,12 +20,12 @@ return new class extends Migration
             $table->string('bank_reference', 100)->nullable();
 
             $table->string('account_name', 150)->nullable();
-            $table->string('account_number', 50)->nullable();
+            $table->text('account_number')->nullable();
             $table->string('sort_code', 20)->nullable();
 
             $table->string('building_society_reference', 100)->nullable();
-            $table->string('country_of_bank', 100);
-            $table->string('iban', 50)->nullable();
+            $table->string('country_of_bank', 100)->nullable();
+            $table->text('iban')->nullable();
             $table->string('swift_bic', 20)->nullable();
 
             $table->foreignId('bank_payment_csv_format_id')->nullable()->constrained('bank_csv_formats')->nullOnDelete();

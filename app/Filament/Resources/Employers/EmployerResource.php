@@ -2,22 +2,25 @@
 
 namespace App\Filament\Resources\Employers;
 
+use App\Filament\Exports\EmployerExporter;
 use App\Filament\Resources\Employers\Pages\ManageEmployers;
 use App\Models\Employer;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\FileUpload;
-
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -25,20 +28,20 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Schemas\Components\Section;
-use Filament\Actions\Action;
-use App\Filament\Exports\EmployerExporter;
-use Filament\Actions\ExportBulkAction;
-use Filament\Actions\Exports\Enums\ExportFormat;
 
 class EmployerResource extends Resource
 {
     protected static ?string $model = Employer::class;
 
     protected static \UnitEnum|string|null $navigationGroup = 'Employers';
+
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-building-office-2';
+
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $navigationLabel = 'Name & Address';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
@@ -68,7 +71,6 @@ class EmployerResource extends Resource
                                         'x-on:click' => 'navigator.clipboard.writeText($wire.$get("data.id"));new FilamentNotification().title("Employer ID copied").success().send();',
                                     ])
                             ),
-
 
                     ])->columns(2)->columnSpan(2),
 
