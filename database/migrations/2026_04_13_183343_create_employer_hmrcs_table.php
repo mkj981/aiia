@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employer_hrmcs', function (Blueprint $table) {
+        Schema::create('employer_hmrcs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employer_id')->constrained()->cascadeOnDelete()->unique();
 
@@ -24,13 +24,13 @@ return new class extends Migration
             $table->string('utr', 50)->nullable();
             $table->string('corporation_tax_reference', 50)->nullable();
 
-            //Payment Schedule
+            // Payment Schedule
             $table->string('payment_schedule', 20)->default('monthly'); // monthly, quarterly
             $table->boolean('carry_forward_unpaid_liabilities')->default(false);
             $table->string('payment_date_type', 31)->default('pay_date');
-            $table->unsignedTinyInteger('payment_day_of_month')->nullable();
+            $table->string('payment_day_of_month')->nullable();
 
-            //Small Employers Relief
+            // Small Employers Relief
             $table->boolean('qualifies_for_small_employers_relief')->default(false);
 
             // Employment Allowance
@@ -38,7 +38,7 @@ return new class extends Migration
             $table->decimal('employment_allowance_max_claim', 12, 2)->nullable();
             $table->boolean('include_employment_allowance_on_monthly_journal')->default(false);
 
-            //Apprenticeship Levy
+            // Apprenticeship Levy
             $table->boolean('required_to_pay_apprenticeship_levy')->default(false);
             $table->decimal('apprenticeship_levy_allowance', 12, 2)->nullable();
             $table->timestamps();
@@ -50,6 +50,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employer_hrmcs');
+        Schema::dropIfExists('employer_hmrcs');
     }
 };

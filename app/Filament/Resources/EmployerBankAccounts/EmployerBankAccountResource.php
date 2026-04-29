@@ -3,15 +3,16 @@
 namespace App\Filament\Resources\EmployerBankAccounts;
 
 use App\Filament\Exports\EmployerBankAccountExporter;
-use Filament\Actions\ExportBulkAction;
-use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\EmployerBankAccounts\Pages\ManageEmployerBankAccounts;
 use App\Models\BankCsvFormat;
 use App\Models\EmployerBankAccount;
+use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -25,14 +26,25 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
+use UnitEnum;
 
 class EmployerBankAccountResource extends Resource
 {
+    private const int ACCOUNT_NUMBER_DIGITS = 8;
+
+    private const int SORT_CODE_DIGITS = 6;
+
     protected static ?string $model = EmployerBankAccount::class;
-    protected static \UnitEnum|string|null $navigationGroup = 'Employers';
+
+    protected static ?string $recordTitleAttribute = 'bank_name';
+
+    protected static UnitEnum|string|null $navigationGroup = 'Employers';
+
     protected static ?string $navigationLabel = 'Bank Account';
 
-    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-credit-card';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-credit-card';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
@@ -42,9 +54,9 @@ class EmployerBankAccountResource extends Resource
                 Section::make('Employer Bank Account Details')
                     ->schema([
                         Hidden::make('employer_id')
-                            ->default(fn (): ?int => auth()->user()->id ?: null)
+                            ->default(fn (): ?int => auth()->id())
                             ->dehydrated()
-                            ->required(fn (): bool => filled(auth()->user()->id)),
+                            ->required(fn (): bool => filled(auth()->id())),
 
                         Select::make('employer_id')
                             ->label('Employer')
@@ -52,18 +64,14 @@ class EmployerBankAccountResource extends Resource
                             ->searchable()
                             ->preload()
                             ->required()
-                            ->hidden(fn (): bool => filled(auth()->user()->id)),
+                            ->hidden(fn (): bool => filled(auth()->id())),
 
                         TextInput::make('bank_name'),
                         TextInput::make('bank_branch'),
                         TextInput::make('bank_reference'),
 
                         Select::make('country_of_bank')
-                            ->options(
-                                collect(config('general.countries_of_bank'))
-                                    ->mapWithKeys(fn ($value, $key) => [
-                                        $key => "<span>$value</span> <span style='color: #7f8c8d; font-size: 12px'>$key</span>",
-                                    ])->toArray())
+                            ->options(static::countryOfBankOptions())
                             ->searchable()
                             ->allowHtml(),
 
@@ -73,42 +81,24 @@ class EmployerBankAccountResource extends Resource
                 Section::make('Employer Account Details')
                     ->schema([
                         TextInput::make('account_name'),
-                        TextInput::make('account_number')
-                            ->label('Account number')
-                            ->inputMode('numeric')
-                            ->live(debounce: 500)
-                            ->afterStateUpdated(function ($livewire, TextInput $component): void {
-                                $livewire->validateOnly($component->getStatePath());
-                            })
-                            ->maxLength(8)
-                            ->minLength(8)
-                            ->regex('/^\d{8}$/')
-                            ->validationMessages([
-                                'min' => 'Account number must be exactly 8 digits.',
-                                'max' => 'Account number must be exactly 8 digits.',
-                                'regex' => 'Account number must be exactly 8 digits.',
-                            ]),
-                        TextInput::make('sort_code')
-                            ->label('Sort code')
-                            ->inputMode('numeric')
-                            ->live(debounce: 500)
-                            ->afterStateUpdated(function ($livewire, TextInput $component): void {
-                                $livewire->validateOnly($component->getStatePath());
-                            })
-                            ->maxLength(6)
-                            ->minLength(6)
-                            ->regex('/^\d{6}$/')
-                            ->validationMessages([
-                                'min' => 'Sort code must be exactly 6 digits.',
-                                'max' => 'Sort code must be exactly 6 digits.',
-                                'regex' => 'Sort code must be exactly 6 digits.',
-                            ]),
+                        static::numericDigitsTextInput(
+                            name: 'account_number',
+                            label: 'Account number',
+                            digits: self::ACCOUNT_NUMBER_DIGITS,
+                            exactLengthMessage: 'Account number must be exactly 8 digits.',
+                        ),
+                        static::numericDigitsTextInput(
+                            name: 'sort_code',
+                            label: 'Sort code',
+                            digits: self::SORT_CODE_DIGITS,
+                            exactLengthMessage: 'Sort code must be exactly 6 digits.',
+                        ),
                         TextInput::make('iban'),
                         TextInput::make('swift_bic'),
 
                     ])->columns(3)->columnSpan(2),
 
-                Section::make('Employer Bank Account Details')
+                Section::make('CSV format and payment references')
                     ->schema([
 
                         Select::make('bank_payment_csv_format_id')
@@ -120,15 +110,10 @@ class EmployerBankAccountResource extends Resource
                             )
                             ->searchable(['name', 'description'])
                             ->preload()
-                            ->getOptionLabelFromRecordUsing(function (BankCsvFormat $record): string {
-                                $description = e($record->description ?? '');
-
-                                return '<span>'.e($record->name).'</span> <span style="color: #7f8c8d; font-size: 12px">'.$description.'</span>';
-                            })
+                            ->getOptionLabelFromRecordUsing(fn (BankCsvFormat $record): string => static::bankCsvFormatOptionLabel($record))
                             ->allowHtml()
                             ->live()
-
-                    ->afterStateUpdated(function (Set $set, mixed $state): void {
+                            ->afterStateUpdated(function (Set $set, mixed $state): void {
                                 if (! static::bankCsvFormatRequiresBacsSun($state)) {
                                     $set('bacs_sun', null);
                                 }
@@ -136,11 +121,19 @@ class EmployerBankAccountResource extends Resource
 
                         TextInput::make('bacs_sun')
                             ->maxLength(20)
-                            ->visible(fn (Get $get): bool => static::bankCsvFormatRequiresBacsSun($get('bank_payment_csv_format_id')))
-                            ->dehydrated(fn (Get $get): bool => static::bankCsvFormatRequiresBacsSun($get('bank_payment_csv_format_id')))
+                            ->visible(fn (Get $get): bool => static::bacsSunApplies($get))
+                            ->dehydrated(fn (Get $get): bool => static::bacsSunApplies($get))
                             ->columnSpan(1),
 
-                        TextInput::make('payment_reference_format')->columnSpan(1),
+                        TextInput::make('payment_reference_format')
+                            ->label(new HtmlString(
+                                'Payment Reference Format'
+                                .' <span style="color:#6b7280;font-size:0.75rem;font-weight:400;white-space:nowrap">'
+                                .'— to appear as the reference on BACS payments to employees'
+                                .'</span>'
+                            ))
+                            ->placeholder('{period} {periodNumber} : {payrollCode}')
+                            ->columnSpan(1),
 
                     ])->columns(2)->columnSpan(2),
 
@@ -155,21 +148,20 @@ class EmployerBankAccountResource extends Resource
 
             ]);
     }
-    protected static function bankCsvFormatRequiresBacsSun(mixed $bankCsvFormatId): bool
-    {
-        if (blank($bankCsvFormatId)) {
-            return false;
-        }
 
-        return (bool) BankCsvFormat::query()->whereKey($bankCsvFormatId)->value('requires_bacs_sun');
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['employer', 'bankPaymentCsvFormat']);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('bank_name')
             ->columns([
-                TextColumn::make('employer_id')->numeric()->sortable(),
+                TextColumn::make('employer.name')
+                    ->label('Employer')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('bank_name')
                     ->searchable(),
                 TextColumn::make('bank_branch')
@@ -237,13 +229,64 @@ class EmployerBankAccountResource extends Resource
                         ]),
                 ]),
 
-
             ]);
     }
+
     public static function getPages(): array
     {
         return [
             'index' => ManageEmployerBankAccounts::route('/'),
         ];
+    }
+
+    protected static function bankCsvFormatRequiresBacsSun(mixed $bankCsvFormatId): bool
+    {
+        if (blank($bankCsvFormatId)) {
+            return false;
+        }
+
+        return (bool) BankCsvFormat::query()->whereKey($bankCsvFormatId)->value('requires_bacs_sun');
+    }
+
+    private static function bacsSunApplies(Get $get): bool
+    {
+        return static::bankCsvFormatRequiresBacsSun($get('bank_payment_csv_format_id'));
+    }
+
+    private static function bankCsvFormatOptionLabel(BankCsvFormat $record): string
+    {
+        $description = e($record->description ?? '');
+
+        return '<span>'.e($record->name).'</span> <span style="color: #7f8c8d; font-size: 12px">'.$description.'</span>';
+    }
+
+    private static function countryOfBankOptions(): array
+    {
+        return collect(config('general.countries_of_bank', []))
+            ->mapWithKeys(fn (string $value, string $key): array => [
+                $key => '<span>'.e($value).'</span> <span style="color: #7f8c8d; font-size: 12px">'.e($key).'</span>',
+            ])
+            ->all();
+    }
+
+    private static function numericDigitsTextInput(string $name, string $label, int $digits, string $exactLengthMessage): TextInput
+    {
+        $pattern = '/^\d{'.$digits.'}$/';
+
+        return TextInput::make($name)
+            ->label($label)
+            ->inputMode('numeric')
+            ->live(debounce: 500)
+            ->afterStateUpdated(function ($livewire, TextInput $component): void {
+                $livewire->validateOnly($component->getStatePath());
+            })
+            ->maxLength($digits)
+            ->minLength($digits)
+            ->regex($pattern)
+            ->validationMessages([
+                'min' => $exactLengthMessage,
+                'max' => $exactLengthMessage,
+                'regex' => $exactLengthMessage,
+            ]);
     }
 }

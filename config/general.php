@@ -30,4 +30,13 @@ return [
         'BR' => 'Brazil',
     ],
 
+    'payment_date_type' => [
+        'pay_date' => 'Pay Date',
+        'date_of_month' => 'Set Date of month',
+    ],
+
+    'payment_schedule' => [
+        'quarterly' => 'Quarterly',
+        'monthly' => 'Monthly',
+    ],
 ];
