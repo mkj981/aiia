@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employer_id')->constrained()->cascadeOnDelete()->unique();
             $table->foreignId('pay_schedule_id')->nullable()->constrained('pay_schedules')->nullOnDelete();
+            $table->foreignId('pay_bases_id')->nullable()->constrained('pay_bases')->nullOnDelete();
             $table->decimal('period_amount', 12, 2)->nullable();
             $table->decimal('annual_salary', 12, 2)->nullable();
 

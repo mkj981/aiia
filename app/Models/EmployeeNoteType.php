@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
 
 class EmployeeNoteType extends Model
 {
+    use HasActivityLog;
 
     protected $fillable = [
         'name',

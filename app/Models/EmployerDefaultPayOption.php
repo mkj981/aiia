@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EmployerDefaultPayOption extends Model
 {
+    use HasActivityLog;
+
     protected $fillable = [
         'employer_id',
 
@@ -42,4 +46,19 @@ class EmployerDefaultPayOption extends Model
         'group_paylines_on_payslip'                         => 'boolean',
         'sort_payroll_numbers_alpha_numerically'            => 'boolean',
     ];
+
+    public function paySchedule(): BelongsTo
+    {
+        return $this->belongsTo(PaySchedule::class, 'pay_schedule_id');
+    }
+
+    public function payBasis(): BelongsTo
+    {
+        return $this->belongsTo(PayBasis::class, 'pay_bases_id');
+    }
+
+    public function employer(): BelongsTo
+    {
+        return $this->belongsTo(Employer::class);
+    }
 }

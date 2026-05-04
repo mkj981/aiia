@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class EmployeerOtherPayOptions extends Model
+class EmployerOtherPayOptions extends Model
 {
+    use HasActivityLog;
+
     protected $fillable = [
         'employer_id',
         'student_loan_plan',
@@ -28,4 +32,9 @@ class EmployeerOtherPayOptions extends Model
         'non_individual'                            => 'boolean',
         'exclude_from_rti_submissions'              => 'boolean',
     ];
+
+    public function employer(): BelongsTo
+    {
+        return $this->belongsTo(Employer::class, 'employer_id');
+    }
 }

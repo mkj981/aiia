@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
 
 class AeoType extends Model
 {
+    use HasActivityLog;
+
     protected $fillable = [
         'name',
         'description',

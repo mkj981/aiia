@@ -36,7 +36,7 @@ class Employer extends Model
             })->toArray();
     }
 
-    public function getCountryNameAttribute()
+    public function getCountryNameAttribute(): ?string
     {
         return config('general.COUNTRIES')[$this->country] ?? $this->country;
     }

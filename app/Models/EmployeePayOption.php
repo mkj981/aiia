@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
 
 class EmployeePayOption extends Model
 {
+    use HasActivityLog;
+
     protected $fillable = [
         'employee_id',
         'pay_schedule_id',

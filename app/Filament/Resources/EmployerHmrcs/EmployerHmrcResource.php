@@ -22,6 +22,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -132,7 +133,7 @@ class EmployerHmrcResource extends Resource
                     font-size: 14px;
                 ">
                     <strong>Warning:</strong>
-                    Changing the Payment Schedule will delete any payment or adjustment information that you may have manually entered for the 2025/26 Tax Year.
+                    Changing the Payment Schedule will delete any payment or adjustment information that you may have manually entered for the '.static::currentTaxYear().' Tax Year.
                 </div>
             '))
                                     ->visible(fn (Get $get) => $get('payment_schedule') === 'quarterly'),
@@ -140,8 +141,7 @@ class EmployerHmrcResource extends Resource
 
                         Select::make('payment_date_type')
                             ->options(config('general.payment_date_type'))->live()
-                            ->afterStateUpdated(fn ($state, $set) => $state !== 'date_of_month' ? $set('payment_day_of_month', null) : null
-                            ),
+                            ->afterStateUpdated(fn (mixed $state, Set $set) => $state !== 'date_of_month' ? $set('payment_day_of_month', null) : null),
 
                         Select::make('payment_day_of_month')
                             ->options(static::getDayOfMonth())->searchable()
@@ -298,11 +298,22 @@ class EmployerHmrcResource extends Resource
 
     public static function getDayOfMonth(): array
     {
-        $days = [];
-        for ($i = 1; $i <= 31; $i++) {
-            $days[$i] = date('jS', strtotime("2023-01-$i"));
-        }
+        $january = now()->startOfYear();
 
-        return $days;
+        return collect(range(1, 31))
+            ->mapWithKeys(fn (int $day): array => [
+                $day => $january->copy()->setDay($day)->format('jS'),
+            ])
+            ->all();
+    }
+
+    private static function currentTaxYear(): string
+    {
+        $now = now();
+        $start = ($now->month < 4 || ($now->month === 4 && $now->day < 6))
+            ? $now->year - 1
+            : $now->year;
+
+        return $start.'/'.substr($start + 1, -2);
     }
 }

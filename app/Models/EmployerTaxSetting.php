@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
 
 class EmployerTaxSetting extends Model
 {
+    use HasActivityLog;
+
     protected $fillable = [
         'employer_id',
         'tax_code',
@@ -20,4 +23,15 @@ class EmployerTaxSetting extends Model
        'ni_secondary_class_nics_not_payable'    => 'boolean',
        'enable_foreign_tax_credit'              => 'boolean'
    ];
+
+
+    public function ni()
+    {
+        return $this->belongsTo(Ni::class, 'ni_id');
+    }
+
+    public function employer()
+    {
+        return $this->belongsTo(Employer::class, 'employer_id');
+    }
 }
