@@ -4,10 +4,11 @@ namespace App\Models;
 
 use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeeEmployment extends Model
 {
-    use HasActivityLog;
+    use SoftDeletes, HasActivityLog;
 
     protected $fillable = [
         'employee_id',
@@ -18,6 +19,7 @@ class EmployeeEmployment extends Model
         'payroll_code',
         'declaration',
         'change_of_payroll_id',
+        'previous_payroll_code',
         'exclude_from_pay_runs',
         'pension_payroll_start_date',
         'annual_pension_amount',

@@ -4,15 +4,16 @@ namespace App\Models;
 
 use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
-    use HasActivityLog;
+    use HasActivityLog, SoftDeletes;
 
     protected $fillable = [
         'employer_id',
 
-        'photo',
+        'photo_path',
         'title',
         'first_name',
         'middle_name',
@@ -46,9 +47,13 @@ class Employee extends Model
         'partner_ni_number',
     ];
 
-
     protected $casts = [
         'date_of_birth' => 'date',
-        'has_partner'   => 'boolean',
+        'has_partner' => 'boolean',
     ];
+
+    public function getFullNameAttribute(): string
+    {
+        return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
+    }
 }

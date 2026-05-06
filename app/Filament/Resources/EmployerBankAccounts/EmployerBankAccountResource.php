@@ -58,14 +58,6 @@ class EmployerBankAccountResource extends Resource
                             ->dehydrated()
                             ->required(fn (): bool => filled(auth()->id())),
 
-                        Select::make('employer_id')
-                            ->label('Employer')
-                            ->relationship('employer', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->required()
-                            ->hidden(fn (): bool => filled(auth()->id())),
-
                         TextInput::make('bank_name'),
                         TextInput::make('bank_branch'),
                         TextInput::make('bank_reference'),

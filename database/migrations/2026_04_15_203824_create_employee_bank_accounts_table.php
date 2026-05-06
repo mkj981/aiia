@@ -25,6 +25,7 @@ return new class extends Migration
 
             $table->string('building_society_reference', 100)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

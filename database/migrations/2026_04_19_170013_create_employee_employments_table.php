@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('payroll_code', 50)->nullable();
             $table->string('declaration', 100)->nullable();
             $table->string('change_of_payroll_id', 100)->nullable();
+            $table->string('previous_payroll_code', 20)->nullable();
             $table->boolean('exclude_from_pay_runs')->default(false);
 
             $table->date('pension_payroll_start_date')->nullable();
@@ -31,6 +32,7 @@ return new class extends Migration
 
             $table->date('leave_date')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

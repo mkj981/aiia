@@ -18,9 +18,9 @@ return new class extends Migration
             // Name
             $table->string('photo_path', 255)->nullable();
             $table->string('title', 20)->nullable();
-            $table->string('first_name', 100);
+            $table->string('first_name', 100)->nullable();
             $table->string('middle_name', 100)->nullable();
-            $table->string('last_name', 100);
+            $table->string('last_name', 100)->nullable();
 
             // Personal
             $table->date('date_of_birth')->nullable();

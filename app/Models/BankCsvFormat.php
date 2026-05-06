@@ -6,10 +6,11 @@ use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BankCsvFormat extends Model
 {
-    use HasActivityLog;
+    use HasActivityLog, SoftDeletes;
 
     protected $fillable = [
         'name',
