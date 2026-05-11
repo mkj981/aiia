@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\Resources\EmployeeLeaves;
+namespace App\Filament\Resources\EmployeeNotes;
 
-use App\Filament\Exports\EmployeeLeaveExporter;
-use App\Filament\Resources\EmployeeLeaves\Pages\ManageEmployeeLeaves;
+use App\Filament\Exports\EmployeeNoteExporter;
+use App\Filament\Resources\EmployeeNotes\Pages\ManageEmployeeNotes;
 use App\Filament\Support\EmployeeRecordDocumentUploads;
-use App\Models\EmployeeLeave;
+use App\Models\EmployeeNote;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -17,9 +17,9 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -29,19 +29,19 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class EmployeeLeaveResource extends Resource
+class EmployeeNoteResource extends Resource
 {
-    protected static ?string $model = EmployeeLeave::class;
+    protected static ?string $model = EmployeeNote::class;
 
     protected static \UnitEnum|string|null $navigationGroup = 'Employees';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar-days';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-pencil-square';
 
-    protected static ?string $recordTitleAttribute = 'leave_type_id';
+    protected static ?string $recordTitleAttribute = 'note';
 
-    protected static ?string $navigationLabel = 'Leaves';
+    protected static ?string $navigationLabel = 'Notes';
 
-    protected static ?int $navigationSort = 11;
+    protected static ?int $navigationSort = 13;
 
     public static function form(Schema $schema): Schema
     {
@@ -54,23 +54,21 @@ class EmployeeLeaveResource extends Resource
                     ->required(fn (): bool => filled(auth()->id()))
                     ->columnSpanFull(),
 
-                Section::make('Leave Details')->schema([
+                Section::make('Note Details')->schema([
 
-                    Select::make('leave_type_id')
-                        ->label('Leave Type')
+                    Select::make('employee_note_type_id')
+                        ->label('Note Type')
                         ->relationship(
-                            'leaveType',
+                            'noteType',
                             'name',
                             fn (Builder $query): Builder => $query->active()->orderBy('id'),
                         )
                         ->searchable()
                         ->preload()->columnSpanFull(),
 
-                    DatePicker::make('date_from'),
-                    DatePicker::make('date_to'),
+                    Textarea::make('note')->columnSpanFull(),
 
-                    EmployeeRecordDocumentUploads::fileUpload('employee-leave-documents'),
-
+                    EmployeeRecordDocumentUploads::fileUpload('employee-note-documents'),
                 ])->columns(2)->columnSpanFull(),
 
             ]);
@@ -80,20 +78,13 @@ class EmployeeLeaveResource extends Resource
     {
         return $table
             ->modifyQueryUsing(EmployeeRecordDocumentUploads::eagerLoadDocuments())
-            ->recordTitleAttribute('leave_type_id')
+            ->recordTitleAttribute('note')
             ->columns([
                 TextColumn::make('employee.full_name')
-                    ->label('Employee')
-                    ->searchable(['first_name', 'middle_name', 'last_name']),
-                TextColumn::make('leavetype.name')
-                    ->label('Leave Type')
-                    ->searchable('name'),
-                TextColumn::make('date_from')
-                    ->date()
-                    ->sortable(),
-                TextColumn::make('date_to')
-                    ->date()
-                    ->sortable(),
+                    ->label('Employee'),
+                TextColumn::make('noteType.name')
+                    ->label('Note Type'),
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -112,8 +103,8 @@ class EmployeeLeaveResource extends Resource
             ])
             ->recordActions([
                 EditAction::make()
-                    ->mutateRecordDataUsing(EmployeeRecordDocumentUploads::mutateEditFormRecordDataUsing(EmployeeLeave::class))
-                    ->using(EmployeeRecordDocumentUploads::editSaveUsing(EmployeeLeave::class)),
+                    ->mutateRecordDataUsing(EmployeeRecordDocumentUploads::mutateEditFormRecordDataUsing(EmployeeNote::class))
+                    ->using(EmployeeRecordDocumentUploads::editSaveUsing(EmployeeNote::class)),
                 DeleteAction::make(),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
@@ -127,7 +118,7 @@ class EmployeeLeaveResource extends Resource
                     ExportBulkAction::make()
                         ->label('Download Excel')
                         ->icon('heroicon-o-arrow-down-tray')
-                        ->exporter(EmployeeLeaveExporter::class)
+                        ->exporter(EmployeeNoteExporter::class)
                         ->formats([
                             ExportFormat::Xlsx,
                         ]),
@@ -138,7 +129,7 @@ class EmployeeLeaveResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ManageEmployeeLeaves::route('/'),
+            'index' => ManageEmployeeNotes::route('/'),
         ];
     }
 

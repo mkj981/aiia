@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\AeoType;
 use App\Models\BankCsvFormat;
+use App\Models\EmployeeNoteType;
 use App\Models\LeavesType;
 use App\Models\Ni;
 use App\Models\PayBasis;
@@ -274,22 +275,31 @@ class DatabaseSeeder extends Seeder
         //        ];
         //        AeoType::insert($aeos);
 
-        $leavesTypes = [
-            ['name' => 'Unauthorized Absence'],
-            ['name' => 'Holiday'],
-            ['name' => 'Sick Leave'],
-            ['name' => 'Maternity Leave'],
-            ['name' => 'Paternity Leave'],
-            ['name' => 'Adoption Leave'],
-            ['name' => 'Shared Parental Leave'],
-            ['name' => 'Bereavement Leave'],
-            ['name' => 'Shared Parental Leave (Adoption)'],
-            ['name' => 'Paternity Leave (Adoption)'],
-            ['name' => 'Strike Action'],
-            ['name' => 'Neonatal Care Leave'],
-            ['name' => 'Bereavement Leave (Nothern Ireland)'],
+        //        $leavesTypes = [
+        //            ['name' => 'Unauthorized Absence'],
+        //            ['name' => 'Holiday'],
+        //            ['name' => 'Sick Leave'],
+        //            ['name' => 'Maternity Leave'],
+        //            ['name' => 'Paternity Leave'],
+        //            ['name' => 'Adoption Leave'],
+        //            ['name' => 'Shared Parental Leave'],
+        //            ['name' => 'Bereavement Leave'],
+        //            ['name' => 'Shared Parental Leave (Adoption)'],
+        //            ['name' => 'Paternity Leave (Adoption)'],
+        //            ['name' => 'Strike Action'],
+        //            ['name' => 'Neonatal Care Leave'],
+        //            ['name' => 'Bereavement Leave (Nothern Ireland)'],
+        //        ];
+        //
+        //        LeavesType::insert($leavesTypes);
+
+        $notes_type = [
+            ['name' => 'General Notes'],
+            ['name' => 'New starter Statement'],
+            ['name' => 'Right to Work Proof'],
+            ['name' => 'P45'],
         ];
 
-        LeavesType::insert($leavesTypes);
+        EmployeeNoteType::insert($notes_type);
     }
 }
