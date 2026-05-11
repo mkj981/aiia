@@ -52,7 +52,6 @@ return [
         ],
     ],
 
-
     'Employer_student_loan' => [
         'none' => 'None',
         '1' => 'Plan One',
@@ -85,12 +84,12 @@ return [
     ],
 
     'marital_status' => [
-      'single' => 'Single',
-      'married' => 'Married',
-      'divorced' => 'Divorced',
-      'widowed' => 'Widowed',
-      'civil_partnership' => 'Civil Partnership',
-      'unknown' => 'Unknown',
+        'single' => 'Single',
+        'married' => 'Married',
+        'divorced' => 'Divorced',
+        'widowed' => 'Widowed',
+        'civil_partnership' => 'Civil Partnership',
+        'unknown' => 'Unknown',
     ],
 
     'gender' => [
@@ -100,7 +99,7 @@ return [
 
     'employment_declaration' => [
         'A' => "This is my first job since last 6 April and I have not been receiving taxable Jobseeker's Allowance, Employment and Support Allowance, taxable  Incapacity Benefit,State or Occupational Pension.",
-        'B' => "This is now my only job but since last 6 April I have had another job, or received taxable Jobseeker’s Allowance, Employment and Support Allowance , or taxable Incapacity Benefit. I do not receive a State or Occupational Pension.",
+        'B' => 'This is now my only job but since last 6 April I have had another job, or received taxable Jobseeker’s Allowance, Employment and Support Allowance , or taxable Incapacity Benefit. I do not receive a State or Occupational Pension.',
         'C' => 'As well as my new job, I have another job or receive a State or Occupational Pension.',
         'Unknown' => 'The status of the new employee is not known.',
     ],
@@ -114,6 +113,12 @@ return [
             'label' => 'Force reporting of changed ID on next FPS',
             'requires_previous_code' => true,
         ],
+    ],
+
+    'employee_pension' => [
+        'does_not_work_in_the_uk' => 'Does Not Work In The UK',
+        'works_in_the_uk' => 'Works in The UK',
+        'ordinarily_work_in_th_uk' => 'Ordinarily Work In The UK',
     ],
 
 ];

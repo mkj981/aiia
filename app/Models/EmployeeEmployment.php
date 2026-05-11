@@ -4,11 +4,12 @@ namespace App\Models;
 
 use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeeEmployment extends Model
 {
-    use SoftDeletes, HasActivityLog;
+    use HasActivityLog, SoftDeletes;
 
     protected $fillable = [
         'employee_id',
@@ -28,15 +29,19 @@ class EmployeeEmployment extends Model
         'leave_date',
     ];
 
-
     protected $casts = [
-        'start_date'                    => 'date',
-        'continuous_start_date'         => 'date',
-        'pension_payroll_start_date'    => 'date',
-        'leave_date'                    => 'date',
-        'works_in_freeport'             => 'boolean',
-        'exclude_from_pay_runs'         => 'boolean',
-        'works_in_investment_zone'      => 'boolean',
+        'start_date' => 'date',
+        'continuous_start_date' => 'date',
+        'pension_payroll_start_date' => 'date',
+        'leave_date' => 'date',
+        'works_in_freeport' => 'boolean',
+        'exclude_from_pay_runs' => 'boolean',
+        'works_in_investment_zone' => 'boolean',
 
     ];
+
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }

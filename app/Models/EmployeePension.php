@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EmployeePension extends Model
 {
@@ -19,4 +20,9 @@ class EmployeePension extends Model
     protected $casts = [
         'exempt_from_ae' => 'boolean',
     ];
+
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }

@@ -98,7 +98,7 @@ class EmployerBankAccountResource extends Resource
                             ->relationship(
                                 'bankPaymentCsvFormat',
                                 'name',
-                                fn (Builder $query): Builder => $query->active()->orderBy('name'),
+                                fn (Builder $query): Builder => $query->active()->orderBy('id'),
                             )
                             ->searchable(['name', 'description'])
                             ->preload()

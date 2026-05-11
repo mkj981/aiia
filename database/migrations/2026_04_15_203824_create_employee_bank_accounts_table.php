@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('bank_reference', 100)->nullable();
 
             $table->string('account_name', 150)->nullable();
-            $table->string('account_number', 50)->nullable();
+            $table->string('account_number', 150)->nullable();
             $table->string('sort_code', 20)->nullable();
 
             $table->string('building_society_reference', 100)->nullable();

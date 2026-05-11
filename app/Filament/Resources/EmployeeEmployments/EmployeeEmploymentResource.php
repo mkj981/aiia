@@ -35,6 +35,7 @@ class EmployeeEmploymentResource extends Resource
     protected static ?string $recordTitleAttribute = 'job_title';
 
     protected static ?string $navigationLabel = 'Employment';
+
     protected static ?int $navigationSort = 8;
 
     public static function form(Schema $schema): Schema
@@ -86,8 +87,7 @@ class EmployeeEmploymentResource extends Resource
 
                         TextInput::make('previous_payroll_code')
                             ->label('Previous Payroll Code')
-                            ->visible(fn ($get) =>
-                                config('general.employment_change_of_payroll_id')[$get('change_of_payroll_id')]['requires_previous_code'] ?? false
+                            ->visible(fn ($get) => config('general.employment_change_of_payroll_id')[$get('change_of_payroll_id')]['requires_previous_code'] ?? false
                             ),
                     ])->columns(2)->columnSpan(2),
 
@@ -103,7 +103,6 @@ class EmployeeEmploymentResource extends Resource
                     DatePicker::make('leave_date'),
                 ])->columns(3)->columnSpan(2),
 
-
             ]);
     }
 
@@ -112,10 +111,9 @@ class EmployeeEmploymentResource extends Resource
         return $table
             ->recordTitleAttribute('job_title')
             ->columns([
-                TextColumn::make('employee.first_name')
+                TextColumn::make('employee.full_name')
                     ->label('Employee')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(['first_name', 'middle_name', 'last_name']),
                 TextColumn::make('job_title')
                     ->searchable(),
                 TextColumn::make('postcode')

@@ -4,11 +4,12 @@ namespace App\Models;
 
 use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmployeeBankAccount extends Model
 {
-    use SoftDeletes, HasActivityLog;
+    use HasActivityLog, SoftDeletes;
 
     protected $fillable = [
         'employee_id',
@@ -23,4 +24,13 @@ class EmployeeBankAccount extends Model
 
         'building_society_reference',
     ];
+
+    protected $casts = [
+        'account_number' => 'encrypted',
+    ];
+
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }
