@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -18,8 +19,14 @@ return new class extends Migration {
 
             $table->string('working_pattern', 100)->nullable();
 
-            $table->decimal('monthly_amount', 12, 2)->nullable();
+            $table->decimal('period_amount', 12, 2)->nullable();
             $table->decimal('annual_salary', 12, 2)->nullable();
+            $table->decimal('hourly_rate', 12, 2)->nullable();
+            $table->decimal('hours_in_period', 12, 2)->nullable();
+            $table->decimal('day_rate', 12, 2)->nullable();
+            $table->decimal('days_in_period', 12, 2)->nullable();
+            $table->decimal('period_total', 12, 2)->nullable();
+            $table->boolean('minimum_wage')->default(false);
 
             $table->string('pay_code', 50)->nullable();
             $table->string('pro_rata_adjustment', 50)->nullable();

@@ -18,6 +18,12 @@ return new class extends Migration
             $table->foreignId('pay_bases_id')->nullable()->constrained('pay_bases')->nullOnDelete();
             $table->decimal('period_amount', 12, 2)->nullable();
             $table->decimal('annual_salary', 12, 2)->nullable();
+            $table->decimal('hourly_rate', 12, 2)->nullable();
+            $table->decimal('hours_in_period', 12, 2)->nullable();
+            $table->decimal('day_rate', 12, 2)->nullable();
+            $table->decimal('days_in_period', 12, 2)->nullable();
+            $table->decimal('period_total', 12, 2)->nullable();
+            $table->boolean('minimum_wage')->default(false);
 
             $table->string('pay_code', 50)->nullable();
             $table->string('pro_rata_adjustment', 50)->nullable();

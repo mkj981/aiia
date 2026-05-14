@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\Clusters\DefaultPayOptions\Resources\EmployerRegularPays;
+namespace App\Filament\Clusters\PayOptions\Resources\EmployeeRegularPays;
 
-use App\Filament\Clusters\DefaultPayOptions\DefaultPayOptionsCluster;
-use App\Filament\Clusters\DefaultPayOptions\Resources\EmployerRegularPays\Pages\ManageEmployerRegularPays;
-use App\Filament\Exports\EmployerRegularPayExporter;
-use App\Models\EmployerDefaultPayOption;
+use App\Filament\Clusters\PayOptions\PayOptionsCluster;
+use App\Filament\Clusters\PayOptions\Resources\EmployeeRegularPays\Pages\ManageEmployeeRegularPays;
+use App\Filament\Exports\EmployeeRegularPayExporter;
+use App\Models\EmployeePayOption;
 use App\Models\PayBasis;
 use App\Models\PaySchedule;
 use BackedEnum;
@@ -27,19 +27,18 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 
-class EmployerRegularPayResource extends Resource
+class EmployeeRegularPayResource extends Resource
 {
-    protected static ?string $model = EmployerDefaultPayOption::class;
+    protected static ?string $model = EmployeePayOption::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $cluster = DefaultPayOptionsCluster::class;
+    protected static ?string $cluster = PayOptionsCluster::class;
 
     protected static ?string $navigationLabel = 'Regular Pay';
 
@@ -51,7 +50,11 @@ class EmployerRegularPayResource extends Resource
     {
         return $schema
             ->components([
-                Hidden::make('employer_id')->default(fn () => auth()->id()),
+                Hidden::make('employee_id')
+                    ->default(fn (): ?int => auth()->id())
+                    ->dehydrated()
+                    ->required(fn (): bool => filled(auth()->id()))
+                    ->columnSpanFull(),
 
                 Section::make('Regular Pay')
                     ->schema([
@@ -71,7 +74,7 @@ class EmployerRegularPayResource extends Resource
                                         $scheduleId = $get('pay_schedule_id');
 
                                         if (blank($scheduleId)) {
-                                            $set('pay_bases_id', null);
+                                            $set('pay_basis_id', null);
                                             $set('annual_salary', null);
                                             static::syncPayCodeForBasis($set, null);
 
@@ -84,7 +87,7 @@ class EmployerRegularPayResource extends Resource
                                             ->orderBy('id')
                                             ->value('id');
 
-                                        $set('pay_bases_id', $defaultBasisId);
+                                        $set('pay_basis_id', $defaultBasisId);
                                         static::syncPayCodeForBasis($set, $defaultBasisId);
 
                                         if (! static::payScheduleShowsAnnualSalary($scheduleId)) {
@@ -93,7 +96,7 @@ class EmployerRegularPayResource extends Resource
                                     })
                                     ->nullable(),
 
-                                Select::make('pay_bases_id')
+                                Select::make('pay_basis_id')
                                     ->label('Basis')
                                     ->relationship(
                                         'payBasis',
@@ -120,38 +123,39 @@ class EmployerRegularPayResource extends Resource
                             ])
                             ->columnSpanFull(),
 
+
                         Grid::make(3)
-                            ->visible(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_bases_id')), ['hourly', 'day_rate'], true))
+                            ->visible(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_basis_id')), ['hourly', 'day_rate'], true))
                             ->schema([
                                 TextInput::make('hourly_rate')
                                     ->label('Hourly Rate')
-                                    ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'hourly')
-                                    ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'hourly')
+                                    ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'hourly')
+                                    ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'hourly')
                                     ->numeric()
                                     ->prefix('£')
                                     ->step('0.01'),
                                 TextInput::make('hours_in_period')
                                     ->label(fn (Get $get): string => static::hoursInPeriodLabel($get('pay_schedule_id')))
-                                    ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'hourly')
-                                    ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'hourly')
+                                    ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'hourly')
+                                    ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'hourly')
                                     ->numeric()
                                     ->step('0.01'),
                                 TextInput::make('day_rate')
                                     ->label('Day Rate')
-                                    ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'day_rate')
-                                    ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'day_rate')
+                                    ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'day_rate')
+                                    ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'day_rate')
                                     ->numeric()
                                     ->prefix('£')
                                     ->step('0.01'),
                                 TextInput::make('days_in_period')
                                     ->label(fn (Get $get): string => static::daysInPeriodLabel($get('pay_schedule_id')))
-                                    ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'day_rate')
-                                    ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'day_rate')
+                                    ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'day_rate')
+                                    ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'day_rate')
                                     ->numeric()
                                     ->step('0.01'),
                                 TextInput::make('period_total')
                                     ->label('Period Total')
-                                    ->dehydrated(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_bases_id')), ['hourly', 'day_rate'], true))
+                                    ->dehydrated(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_basis_id')), ['hourly', 'day_rate'], true))
                                     ->numeric()
                                     ->prefix('£')
                                     ->step('0.01'),
@@ -159,18 +163,18 @@ class EmployerRegularPayResource extends Resource
                             ->columnSpanFull(),
 
                         TextInput::make('period_amount')
-                            ->label(fn (Get $get): string => static::periodAmountFieldLabel($get('pay_schedule_id'), $get('pay_bases_id')))
-                            ->visible(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_bases_id')), ['rate_annual', 'fixed_period'], true))
-                            ->dehydrated(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_bases_id')), ['rate_annual', 'fixed_period'], true))
+                            ->label(fn (Get $get): string => static::periodAmountFieldLabel($get('pay_schedule_id'), $get('pay_basis_id')))
+                            ->visible(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_basis_id')), ['rate_annual', 'fixed_period'], true))
+                            ->dehydrated(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_basis_id')), ['rate_annual', 'fixed_period'], true))
                             ->numeric()
                             ->prefix('£')
                             ->step('0.01'),
 
                         TextInput::make('annual_salary')
                             ->label('Annual Salary')
-                            ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'rate_annual'
+                            ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'rate_annual'
                                 && static::payScheduleShowsAnnualSalary($get('pay_schedule_id')))
-                            ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'rate_annual'
+                            ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'rate_annual'
                                 && static::payScheduleShowsAnnualSalary($get('pay_schedule_id')))
                             ->numeric()
                             ->prefix('£')
@@ -178,15 +182,15 @@ class EmployerRegularPayResource extends Resource
 
                         Select::make('pay_code')
                             ->label('Pay Code')
-                            ->options(fn (Get $get): array => static::payCodeOptionsForKind(static::payBasisKind($get('pay_bases_id'))))
+                            ->options(fn (Get $get): array => static::payCodeOptionsForKind(static::payBasisKind($get('pay_basis_id'))))
                             ->searchable()
                             ->preload()
                             ->nullable(),
 
                         Select::make('pro_rata_adjustment')
                             ->label('Pro-rata Adjustment')
-                            ->visible(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_bases_id')), ['rate_annual', 'fixed_period'], true))
-                            ->dehydrated(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_bases_id')), ['rate_annual', 'fixed_period'], true))
+                            ->visible(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_basis_id')), ['rate_annual', 'fixed_period'], true))
+                            ->dehydrated(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_basis_id')), ['rate_annual', 'fixed_period'], true))
                             ->options(
                                 collect(config('general.pro_rata_adjustment'))
                                     ->mapWithKeys(fn ($item, $key) => [
@@ -204,51 +208,28 @@ class EmployerRegularPayResource extends Resource
 
                         Toggle::make('minimum_wage')
                             ->label('Minimum Wage')
-                            ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'hourly')
-                            ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_bases_id')) === 'hourly')
+                            ->visible(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'hourly')
+                            ->dehydrated(fn (Get $get): bool => static::payBasisKind($get('pay_basis_id')) === 'hourly')
                             ->inline(false),
 
                     ])->columns(2)->columnSpanFull(),
 
-                Section::make('Payroll Options')
-                    ->schema([
-                        Toggle::make('allow_negative_net_pay')
-                            ->label('Allow Negative Net Pay'),
-
-                        Toggle::make('automatically_calculate_back_pay_for_new_starters')
-                            ->label('Automatically Calculate Back Pay for New Starters'),
-
-                        Toggle::make('enable_paycode_validation')
-                            ->label('Enable Pay Code Validation'),
-
-                        Toggle::make('calculate_effective_date_salary_changes')
-                            ->label('Calculate Effective Date Salary Changes'),
-
-                        Toggle::make('group_paylines_on_payslip')
-                            ->label('Group Paylines on Payslip'),
-
-                        Toggle::make('sort_payroll_numbers_alpha_numerically')
-                            ->label('Sort Payroll Numbers Alpha-Numerically'),
-                    ])->columnSpanFull(),
-
-                Section::make('Contracted Time')
-                    ->schema([
-                        TextInput::make('contracted_weeks')
-                            ->label('Contracted Weeks (beta)')
-                            ->maxLength(50),
-
-                        TextInput::make('full_time_contracted_weeks')
-                            ->label('Full Time Contracted Weeks (beta)')
-                            ->maxLength(50),
-
-                        TextInput::make('full_time_contracted_hours_per_week')
-                            ->label('Full Time Contracted Hours Per Week (beta)')
-                            ->maxLength(50),
-                    ])->columns(3)->columnSpanFull(),
-
                 Section::make('Base Rates')
                     ->columns(2)
                     ->schema([
+
+                        Select::make('working_pattern')
+                            ->label('Working Pattern')
+                            ->options(EmployeePayOption::workingPatternOptions())
+                            ->default(EmployeePayOption::WORKING_PATTERN_DEFAULT_STANDARD_WEEK)
+                            ->native(false)
+                            ->afterStateHydrated(function (mixed $state, Set $set): void {
+                                if (blank($state)) {
+                                    $set('working_pattern', EmployeePayOption::WORKING_PATTERN_DEFAULT_STANDARD_WEEK);
+                                }
+                            })
+                            ->columnSpanFull(),
+
                         TextInput::make('base_hourly_rate')
                             ->label(fn () => new HtmlString(
                                 'Base Hourly Rate <span style="font-size: 10px; color: #7f8c8d">- for PayCodes that are multiples of this rate, e.g. overtime.</span>'
@@ -259,7 +240,9 @@ class EmployerRegularPayResource extends Resource
                             ->maxLength(50),
 
                         TextInput::make('base_daily_rate')
-                            ->label('Base Daily Rate')
+                            ->label(fn () => new HtmlString(
+                                'Base Daily Rate <span style="font-size: 10px; color: #7f8c8d">- for PayCodes that are multiples of this rate, e.g. sick.</span>'
+                            ))
                             ->numeric()
                             ->prefix('£')
                             ->maxLength(50),
@@ -272,10 +255,9 @@ class EmployerRegularPayResource extends Resource
         return $table
             ->recordTitleAttribute('pay_code')
             ->columns([
-                TextColumn::make('employer.name')
-                    ->label('Employer')
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('employee.full_name')
+                    ->label('Employee')
+                    ->searchable(['first_name', 'middle_name', 'last_name']),
 
                 TextColumn::make('paySchedule.name')
                     ->label('Pay Schedule')
@@ -284,6 +266,12 @@ class EmployerRegularPayResource extends Resource
 
                 TextColumn::make('payBasis.name')
                     ->label('Pay Basis')
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('working_pattern')
+                    ->label('Working Pattern')
+                    ->formatStateUsing(fn (?string $state): string => EmployeePayOption::labelForWorkingPattern($state))
                     ->searchable()
                     ->sortable(),
 
@@ -311,18 +299,6 @@ class EmployerRegularPayResource extends Resource
                     ->money(config('general.currency_code'))
                     ->sortable(),
 
-                TextColumn::make('contracted_weeks')
-                    ->label('Contracted Weeks')
-                    ->sortable(),
-
-                TextColumn::make('full_time_contracted_weeks')
-                    ->label('Full Time Weeks')
-                    ->sortable(),
-
-                TextColumn::make('full_time_contracted_hours_per_week')
-                    ->label('Full Time Hours / Week')
-                    ->sortable(),
-
                 TextColumn::make('base_hourly_rate')
                     ->label('Base Hourly Rate')
                     ->money(config('general.currency_code'))
@@ -332,36 +308,6 @@ class EmployerRegularPayResource extends Resource
                     ->label('Base Daily Rate')
                     ->money(config('general.currency_code'))
                     ->sortable(),
-
-                IconColumn::make('allow_negative_net_pay')
-                    ->label('Negative Net Pay')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                IconColumn::make('automatically_calculate_back_pay_for_new_starters')
-                    ->label('Calculate Back Pay for new Starters')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                IconColumn::make('enable_paycode_validation')
-                    ->label('Paycode Validation')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                IconColumn::make('calculate_effective_date_salary_changes')
-                    ->label('Effective Date Changes')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                IconColumn::make('group_paylines_on_payslip')
-                    ->label('Group Paylines')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                IconColumn::make('sort_payroll_numbers_alpha_numerically')
-                    ->label('Sort Payroll Numbers')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label('Created')
@@ -391,7 +337,7 @@ class EmployerRegularPayResource extends Resource
                     ExportBulkAction::make()
                         ->label('Download Excel')
                         ->icon('heroicon-o-arrow-down-tray')
-                        ->exporter(EmployerRegularPayExporter::class)
+                        ->exporter(EmployeeRegularPayExporter::class)
                         ->formats([
                             ExportFormat::Xlsx,
                         ]),
@@ -401,13 +347,13 @@ class EmployerRegularPayResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['employer', 'paySchedule', 'payBasis']);
+        return parent::getEloquentQuery()->with(['employee', 'paySchedule', 'payBasis']);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ManageEmployerRegularPays::route('/'),
+            'index' => ManageEmployeeRegularPays::route('/'),
         ];
     }
 

@@ -14,13 +14,20 @@ class EmployerDefaultPayOption extends Model
         'employer_id',
 
         'pay_schedule_id',
-        'pay_basis_id',
+        'pay_bases_id',
 
         'pay_code',
         'pro_rata_adjustment',
 
         'period_amount',
         'annual_salary',
+
+        'hourly_rate',
+        'hours_in_period',
+        'day_rate',
+        'days_in_period',
+        'period_total',
+        'minimum_wage',
 
         'allow_negative_net_pay',
         'automatically_calculate_back_pay_for_new_starters',
@@ -37,14 +44,14 @@ class EmployerDefaultPayOption extends Model
         'base_daily_rate',
     ];
 
-
     protected $casts = [
-        'allow_negative_net_pay'                            => 'boolean',
+        'allow_negative_net_pay' => 'boolean',
         'automatically_calculate_back_pay_for_new_starters' => 'boolean',
-        'enable_paycode_validation'                         => 'boolean',
-        'calculate_effective_date_salary_changes'           => 'boolean',
-        'group_paylines_on_payslip'                         => 'boolean',
-        'sort_payroll_numbers_alpha_numerically'            => 'boolean',
+        'enable_paycode_validation' => 'boolean',
+        'calculate_effective_date_salary_changes' => 'boolean',
+        'group_paylines_on_payslip' => 'boolean',
+        'sort_payroll_numbers_alpha_numerically' => 'boolean',
+        'minimum_wage' => 'boolean',
     ];
 
     public function paySchedule(): BelongsTo

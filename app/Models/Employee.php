@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
@@ -55,5 +56,10 @@ class Employee extends Model
     public function getFullNameAttribute(): string
     {
         return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
+    }
+
+    public function payOption(): HasOne
+    {
+        return $this->hasOne(EmployeePayOption::class);
     }
 }
