@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\AeoType;
 use App\Models\BankCsvFormat;
+use App\Models\BenefitType;
 use App\Models\EmployeeNoteType;
 use App\Models\LeavesType;
 use App\Models\Ni;
@@ -201,5 +202,30 @@ class DatabaseSeeder extends Seeder
         ];
 
         EmployeeNoteType::insert($notes_type);
+
+        $now = now();
+
+        BenefitType::query()->insert([
+            ['code' => 'A', 'name' => 'Assets transferred', 'description' => 'Assets transferred (cars, property, goods or other assets)', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'B_PAY', 'name' => 'Payments', 'description' => 'Payments made on behalf of employee', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'B_TAX', 'name' => 'Tax', 'description' => 'Tax on notional payments', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'C', 'name' => 'Vouchers', 'description' => 'Vouchers and credit cards', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'D', 'name' => 'Living Accommodation', 'description' => 'Living Accommodation', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'E', 'name' => 'Mileage', 'description' => 'Mileage allowance and passenger payments', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'F', 'name' => 'Car', 'description' => 'Car and fuel', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'G', 'name' => 'Vans', 'description' => 'Vans and fuel', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'H', 'name' => 'Loans', 'description' => 'Interest-free or low interest loans', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'I', 'name' => 'Medical', 'description' => 'Private medical treatment or insurance', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'J', 'name' => 'Qualifying Relocation Expenses', 'description' => 'Qualifying relocation expenses payments and benefits', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'K', 'name' => 'Services', 'description' => 'Services supplied', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'L', 'name' => 'Use of Assets', 'description' => "Assets placed at the employee's disposal", 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'M_1A', 'name' => 'Other items (Class 1A)', 'description' => 'Other items (Class 1A)', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'M_NON', 'name' => 'Other items (Non-Class 1A)', 'description' => 'Other items (Non-Class 1A)', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'M_DIR', 'name' => 'Directors Income Tax', 'description' => "Income Tax paid but not deducted from director's remuneration", 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'N_TRV', 'name' => 'Travel', 'description' => 'Travelling and subsistence payments', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'N_ENT', 'name' => 'Entertainment', 'description' => 'Entertainment', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'N_TEL', 'name' => 'Telephone', 'description' => 'Payments for use of home telephone', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'N_RLOC', 'name' => 'Non-qualifying relocation expenses', 'description' => 'Non-qualifying relocation expenses', 'is_active' => true, 'created_at' => $now, 'updated_at' => $now],
+        ]);
     }
 }

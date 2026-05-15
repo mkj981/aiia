@@ -41,15 +41,72 @@ return [
         'monthly' => 'Monthly',
     ],
 
-    'pro_rata_adjustment' => [
-        'automatic' => [
-            'name' => 'Automatic',
-            'description' => 'Automatically pro-rate pay for starters and leavers, and reduce pay for absences. ',
-        ],
-        'manual' => [
-            'name' => 'Manual',
-            'description' => "Don't change the values above. I will manually make any required changes",
-        ],
+    /**
+     * Ordered list of pay code `name` values shown on the employee addition/deduction line form.
+     *
+     * @var list<string>
+     */
+    'employee_addition_deduction_pay_code_order' => [
+        'BASIC',
+        'BASICANNUAL',
+        'BASICHOURLY',
+        'BASICDAILY',
+        'AHPAY',
+        'AHPAYHRS',
+        'AHPAYHRSLVR',
+        'HOLDAYRATE',
+        'TERMINATION',
+    ],
+
+    /**
+     * Ordered list of pay code `name` values shown on the employee loan form.
+     *
+     * @var list<string>
+     */
+    'employee_loan_pay_code_order' => [
+        'TERMINATION',
+        'BASIC',
+        'BASICANNUAL',
+        'BASICHOURLY',
+        'BASICDAILY',
+        'AHPAY',
+        'AHPAYHRS',
+        'AHPAYHRSLVR',
+        'HOLDAYRATE',
+    ],
+
+    /**
+     * Maps pay code `name` to employee addition/deduction form behaviour.
+     *
+     * @var array<string, string>
+     */
+    'employee_addition_deduction_line_kinds' => [
+        'BASIC' => 'fixed_period',
+        'AHPAY' => 'fixed_period',
+        'TERMINATION' => 'fixed_period',
+        'BASICANNUAL' => 'fixed_annual',
+        'BASICHOURLY' => 'hourly',
+        'AHPAYHRS' => 'hourly',
+        'AHPAYHRSLVR' => 'hourly',
+        'BASICDAILY' => 'daily',
+        'HOLDAYRATE' => 'daily',
+    ],
+
+    /**
+     * Seed data for `pay_codes` used by employee addition/deduction lines (name => description).
+     *
+     * @var array<string, string>
+     */
+    'employee_addition_deduction_pay_code_definitions' => [
+        'BASIC' => 'Basic Pay',
+        'BASICANNUAL' => 'Basic Pay',
+        'BASICHOURLY' => 'Basic Hourly Pay',
+        'BASICDAILY' => 'Basic Daily Pay',
+        'AHPAY' => 'Accrued Holiday Pay',
+        'AHPAYHRS' => 'Accrued Holiday Pay Hours',
+        'AHPAYHRSLVR' => 'Accrued Holiday Pay Hours Leavers',
+        'HOLDAYRATE' => 'Holiday Days (Day Rate)',
+        'TERMINATION' => 'Termination Payment',
     ],
 
     'Employer_student_loan' => [
@@ -119,6 +176,50 @@ return [
         'does_not_work_in_the_uk' => 'Does Not Work In The UK',
         'works_in_the_uk' => 'Works in The UK',
         'ordinarily_work_in_th_uk' => 'Ordinarily Work In The UK',
+    ],
+
+    /**
+     * Tax years offered when recording an employee benefit.
+     *
+     * @var array<string, string>
+     */
+    'employee_benefit_tax_years' => [
+        '2026/27' => '2026/27',
+        '2025/26' => '2025/26',
+        '2024/25' => '2024/25',
+        '2023/24' => '2023/24',
+    ],
+
+    /**
+     * Employee benefit declaration types (stored value => label + helper text for the form).
+     *
+     * @var array<string, array{label: string, description: string}>
+     */
+    'employee_benefit_declaration_types' => [
+        'P11D' => [
+            'label' => 'P11D',
+            'description' => 'Declare on a P11D after year end',
+        ],
+        'PAYE' => [
+            'label' => 'PAYE',
+            'description' => 'Declare on FPS with payroll submissions',
+        ],
+    ],
+
+    /**
+     * Pro-rata adjustment options for regular pay and addition/deduction lines.
+     *
+     * @var array<string, array{name: string, description: string}>
+     */
+    'pro_rata_adjustment' => [
+        'automatic' => [
+            'name' => 'Automatic',
+            'description' => 'Automatically pro-rate pay for starters and leavers, and reduce pay for absences.',
+        ],
+        'manual' => [
+            'name' => 'Manual',
+            'description' => "Don't change the values above. I will manually make any required changes",
+        ],
     ],
 
 ];

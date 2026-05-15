@@ -123,7 +123,6 @@ class EmployeeRegularPayResource extends Resource
                             ])
                             ->columnSpanFull(),
 
-
                         Grid::make(3)
                             ->visible(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_basis_id')), ['hourly', 'day_rate'], true))
                             ->schema([
@@ -192,14 +191,14 @@ class EmployeeRegularPayResource extends Resource
                             ->visible(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_basis_id')), ['rate_annual', 'fixed_period'], true))
                             ->dehydrated(fn (Get $get): bool => in_array(static::payBasisKind($get('pay_basis_id')), ['rate_annual', 'fixed_period'], true))
                             ->options(
-                                collect(config('general.pro_rata_adjustment'))
+                                collect(config('general.pro_rata_adjustment', []))
                                     ->mapWithKeys(fn ($item, $key) => [
                                         $key => static::proRataAdjustmentOptionLabel((object) $item),
                                     ])
                                     ->toArray()
                             )
-                            ->getOptionLabelUsing(fn ($value) => $value && isset(config('general.pro_rata_adjustment')[$value])
-                                ? static::proRataAdjustmentOptionLabel((object) config('general.pro_rata_adjustment')[$value])
+                            ->getOptionLabelUsing(fn ($value) => $value && isset(config('general.pro_rata_adjustment', [])[$value])
+                                ? static::proRataAdjustmentOptionLabel((object) config('general.pro_rata_adjustment', [])[$value])
                                 : null
                             )
                             ->allowHtml()
@@ -515,11 +514,9 @@ class EmployeeRegularPayResource extends Resource
 
     private static function proRataAdjustmentOptionLabel(object $record): string
     {
-        return '
-        <div>
-            <div>'.e($record->name).'</div>
-            <div style="color: #7f8c8d; font-size: 12px;">'.e($record->description ?? '').'</div>
-        </div>
-    ';
+        $description = e((string) ($record->description ?? ''));
+
+        return '<span style="font-weight: 600;">'.e($record->name).'</span>'
+            .' <span style="color: #7f8c8d; font-size: 12px;">'.$description.'</span>';
     }
 }

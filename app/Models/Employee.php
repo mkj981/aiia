@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasActivityLog;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -61,5 +62,29 @@ class Employee extends Model
     public function payOption(): HasOne
     {
         return $this->hasOne(EmployeePayOption::class);
+    }
+
+    /**
+     * @return HasMany<EmployeeAdditionDeduction, $this>
+     */
+    public function additionDeductions(): HasMany
+    {
+        return $this->hasMany(EmployeeAdditionDeduction::class);
+    }
+
+    /**
+     * @return HasMany<EmployeeLoan, $this>
+     */
+    public function loans(): HasMany
+    {
+        return $this->hasMany(EmployeeLoan::class);
+    }
+
+    /**
+     * @return HasMany<EmployeeBenefit, $this>
+     */
+    public function benefits(): HasMany
+    {
+        return $this->hasMany(EmployeeBenefit::class);
     }
 }
